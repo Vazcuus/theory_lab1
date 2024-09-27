@@ -33,6 +33,7 @@ class huffman_code
             SaveCodes(root->left, str + "0");
             SaveCodes(root->right, str + "1");
         }
+        // https://en.cppreference.com/w/cpp/container/priority_queue
         struct Comparator
         {
             bool operator()(huffman_node *left, huffman_node *right)
@@ -65,15 +66,18 @@ class huffman_code
             int i =0;
             for (auto i = 0; i < odds.size(); i++)
             {
-                entropy += odds[i]*log(odds[i])/log(odds.size());
+                entropy += odds[i]*log2(odds[i]); // https://en.cppreference.com/w/cpp/numeric/math/log 
+                // odds[i]*log(odds[i])/log(odds.size())
+                // 1*log2(1/odds.size())
             }
-            std::cout << "Entropy: " << (float)-entropy << std::endl;
-            return -entropy;
+            entropy = -entropy;
+            std::cout << "Entropy: " << (float)entropy << std::endl; 
+            return entropy;
         }
         float PrintSurplus()
         {
-            std::cout << "Surplus: " << float(1 + entropy) << std::endl;
-            return 1 + entropy;
+            std::cout << "Surplus: " << float(1 - (entropy)/(fabs(log2f((float)1/odds.size())))) << std::endl;
+            return (float)(1 - (entropy)/(abs(log2(1/odds.size()))));
         }
 };
 
@@ -81,7 +85,7 @@ void huffman_code::HuffmanWork(std::string ch)
 {
     huffman_node *left, *right, *top;
 
-    std::priority_queue<huffman_node*, std::vector<huffman_node*>, Comparator> result;
+    std::priority_queue<huffman_node*, std::vector<huffman_node*>, Comparator> result; // look comparator
 
     for (int i = 0; i < ch.size(); i++)
     {
@@ -96,7 +100,7 @@ void huffman_code::HuffmanWork(std::string ch)
         right = result.top();
         result.pop();
 
-        top = new huffman_node('%', left->odds + right->odds);
+        top = new huffman_node('%', left->odds + right->odds); // {0.22, 0.18, 0.15, 0.13, 0.13, 0.1, 0,09};
         top->left = left;
         top->right = right;
         result.push(top);
